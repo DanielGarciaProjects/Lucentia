@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Caju Lanches Guarabu — Peça pelo WhatsApp</title>
+<meta name="description" content="Hambúrgueres artesanais, combos, açaí e sucos na Ilha do Governador. Peça agora pelo WhatsApp, entrega rápida.">
+
+<!-- ============================================================
+     COMO EDITAR ESTE SITE PARA OUTRA LANCHONETE
+     1. Edite o objeto BUSINESS (dados do negócio, WhatsApp, horário, endereço)
+     2. Edite o array PRODUCTS (cardápio: categorias, itens, preços, descrições)
+     3. Troque as cores em :root (variáveis --cor-*) para a identidade da marca
+     4. Cada produto aceita um campo "img": "URL_DA_FOTO" — se vazio, mostra
+        um ícone ilustrado da categoria. Basta colar a URL de uma foto real.
+     ============================================================ -->
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap');
+
+  :root{
+    /* ---------- paleta ---------- */
+    --bg:            #150F0A;   /* chapa/grill à noite */
+    --surface:       #211710;
+    --surface-2:     #2C2018;
+    --surface-3:     #382A1F;
+    --line:          #3B2B20;
+    --caju:          #FF7A29;   /* laranja caju — marca */
+    --caju-deep:     #E85D0F;
+    --ember:         #D62828;   /* vermelho pimenta — urgência/CTA */
+    --gold:          #FFC145;   /* dourado batata frita — destaque/preço */
+    --acai:          #7A3FA0;   /* roxo açaí — usado com moderação */
+    --cream:         #FFF6EA;
+    --muted:         #C9B6A3;
+    --muted-2:       #8B7969;
+    --good:          #4CAF6D;
+
+    --font-display: 'Anton', 'Arial Narrow', sans-serif;
+    --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'Space Mono', monospace;
+
+    --radius: 18px;
+    --radius-sm: 10px;
+    --container: 480px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 90px; /* espaço p/ barra flutuante do carrinho */
+    overflow-x: hidden;
+  }
+  img{ max-width:100%; display:block; }
+  button{ font-family: inherit; cursor:pointer; border:none; }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background: var(--caju); color:#150F0A; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  .wrap{ max-width: var(--container); margin: 0 auto; padding: 0 18px; position:relative; }
+  .wrap-wide{ max-width: 900px; margin:0 auto; padding:0 18px; }
+
+  h1,h2,h3{ font-family: var(--font-display); letter-spacing:0.3px; text-transform:uppercase; line-height:1.02; }
+
+  /* ============ topo fixo ============ */
+  .topbar{
+    position: sticky; top:0; z-index: 60;
+    background: rgba(21,15,10,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    transition: transform .25s ease;
+  }
+  .topbar.hide{ transform: translateY(-100%); }
+  .topbar-inner{
+    max-width: var(--container); margin:0 auto; padding: 12px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .brand{ display:flex; align-items:center; gap:9px; }
+  .brand-badge{
+    width:38px; height:38px; border-radius:50%;
+    background: radial-gradient(circle at 32% 28%, var(--gold), var(--caju) 60%, var(--caju-deep));
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display); font-size:16px; color:#1A0E04;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+    flex-shrink:0;
+  }
+  .brand-name{ font-family: var(--font-display); font-size: 15.5px; letter-spacing:0.5px; }
+  .brand-name small{ display:block; font-family: var(--font-body); font-weight:600; text-transform:none; font-size:9.5px; color: var(--muted); letter-spacing: 0.4px; }
+  .btn-wa-mini{
+    display:flex; align-items:center; gap:6px;
+    background: var(--good); color:#0C2814; font-weight:800; font-size:12.5px;
+    padding: 9px 13px; border-radius: 999px;
+  }
+  .btn-wa-mini svg{ width:15px; height:15px; }
+
+  /* ============ botões genéricos ============ */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:800; font-size:15px; letter-spacing:0.2px;
+    padding: 16px 22px; border-radius: 14px;
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{
+    background: linear-gradient(180deg, var(--gold), var(--caju) 78%);
+    color: #1A0E04;
+    box-shadow: 0 8px 0 var(--caju-deep), 0 14px 24px rgba(255,122,41,0.25);
+  }
+  .btn-primary:hover{ filter:brightness(1.05); }
+  .btn-block{ width:100%; }
+  .btn-ghost{
+    background: transparent; border: 1.5px solid var(--line); color: var(--cream);
+  }
+
+  /* ============ HERO ============ */
+  .hero{
+    position:relative;
+    padding: 34px 0 44px;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 0%, rgba(255,122,41,0.16), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 85% 15%, rgba(122,63,160,0.12), transparent 60%),
+      var(--bg);
+    overflow:hidden;
+  }
+  .hero::before{ /* textura de fumaça sutil */
+    content:''; position:absolute; inset:0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 14px 14px;
+    opacity:0.5; pointer-events:none;
+  }
+  .hero-eyebrow{
+    display:inline-flex; align-items:center; gap:7px;
+    background: var(--surface); border:1px solid var(--line);
+    padding: 7px 13px; border-radius:999px; font-size:12px; font-weight:700;
+    color: var(--gold); margin-bottom:18px;
+  }
+  .dot-live{ width:7px; height:7px; border-radius:50%; background: var(--good); box-shadow:0 0 0 3px rgba(76,175,109,0.25); }
+  .dot-live.off{ background:#8B7969; box-shadow:0 0 0 3px rgba(139,121,105,0.2); }
+
+  .hero-title{
+    font-size: 52px; color: var(--cream);
+    text-shadow: 0 6px 0 rgba(0,0,0,0.3);
+  }
+  .hero-title .accent{
+    color: var(--caju);
+    -webkit-text-stroke: 1.5px var(--gold);
+  }
+  .hero-sub{
+    margin-top:14px; font-size:16.5px; color: var(--muted); max-width: 30ch; font-weight:500;
+  }
+
+  .hero-illustration{
+    margin: 26px 0 22px; position:relative; height: 190px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  /* burger ilustrado em CSS puro — evita usar foto de banco de imagens sem licença */
+  .burger{ position:relative; width:190px; }
+  .burger .layer{ height:26px; border-radius:40px; margin:-6px 0; position:relative; box-shadow: 0 5px 10px rgba(0,0,0,0.35); }
+  .burger .bun-top{ background: linear-gradient(180deg,#F2A94E,#D9821F); height:46px; border-radius: 90px 90px 20px 20px; }
+  .burger .seed{ position:absolute; width:5px; height:9px; background:#FFE7B8; border-radius:50%; opacity:.85; }
+  .burger .lettuce{ background: linear-gradient(180deg,#8FC63E,#5FA22A); clip-path: polygon(0% 40%,6% 10%,14% 45%,22% 5%,30% 42%,38% 8%,46% 45%,54% 6%,62% 44%,70% 10%,78% 46%,86% 12%,94% 42%,100% 15%,100% 100%,0% 100%); height:22px; }
+  .burger .cheese{ background: linear-gradient(180deg,#FFCB4D,#F5A623); clip-path: polygon(0 0,100% 0,96% 100%,4% 100%); height:16px; }
+  .burger .patty{ background: linear-gradient(180deg,#7A4128,#5B2E1B); height:24px; border-radius:14px; }
+  .burger .bacon{ background: repeating-linear-gradient(-15deg, #B5432E 0 8px, #E0715A 8px 14px); height:14px; border-radius:8px; opacity:.95; }
+  .burger .bun-bottom{ background: linear-gradient(180deg,#E29A46,#C57619); height:24px; border-radius: 16px 16px 60px 60px; }
+  .steam{ position:absolute; top:-6px; width:5px; border-radius:6px; background: rgba(255,255,255,0.18); filter: blur(2px); animation: rise 3.6s ease-in-out infinite; }
+  @keyframes rise{ 0%{ transform: translateY(0) scaleY(1); opacity:0; } 20%{opacity:.7;} 100%{ transform: translateY(-46px) scaleY(1.5); opacity:0; } }
+
+  .hero-cta-row{ display:flex; flex-direction:column; gap:10px; margin-top:6px; }
+  .hero-meta{ display:flex; gap:16px; margin-top:20px; flex-wrap:wrap; }
+  .hero-meta-item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color: var(--muted); font-weight:600; }
+  .hero-meta-item svg{ width:15px; height:15px; color: var(--gold); flex-shrink:0; }
+
+  /* ============ tira de destaque / rating ============ */
+  .rating-strip{
+    display:flex; align-items:center; gap:10px; margin-top:20px;
+    background: var(--surface); border:1px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  }
+  .rating-num{ font-family: var(--font-display); font-size:22px; color: var(--gold); }
+  .stars{ color: var(--gold); font-size:13px; letter-spacing:1px; }
+  .rating-strip small{ display:block; color: var(--muted-2); font-size:11px; font-weight:600; }
+
+  /* ============ seções ============ */
+  section{ padding: 42px 0; }
+  .section-head{ margin-bottom: 20px; }
+  .eyebrow{
+    font-family: var(--font-mono); font-size:11px; color: var(--caju);
+    letter-spacing:2px; text-transform:uppercase; font-weight:700; display:block; margin-bottom:6px;
+  }
+  .section-title{ font-size: 30px; color: var(--cream); }
+  .section-desc{ color: var(--muted); font-size:14.5px; margin-top:8px; max-width:38ch; font-weight:500; }
+
+  /* ============ nav de categorias (sticky) ============ */
+  .cat-nav{
+    position: sticky; top: 63px; z-index:50;
+    background: rgba(21,15,10,0.96); backdrop-filter: blur(8px);
+    padding: 12px 0; border-bottom:1px solid var(--line);
+    margin-bottom: 22px;
+  }
+  .cat-scroll{
+    display:flex; gap:9px; overflow-x:auto; scrollbar-width:none; padding: 0 18px;
+  }
+  .cat-scroll::-webkit-scrollbar{ display:none; }
+  .cat-pill{
+    flex-shrink:0; display:flex; align-items:center; gap:6px;
+    background: var(--surface); border:1px solid var(--line); color: var(--muted);
+    padding: 9px 15px; border-radius:999px; font-size:13px; font-weight:700; white-space:nowrap;
+    transition: all .18s ease;
+  }
+  .cat-pill.active{ background: var(--caju); border-color: var(--caju); color:#1A0E04; }
+
+  /* ============ cards de produto ============ */
+  .cat-group{ margin-bottom: 36px; }
+  .cat-group-title{
+    font-family: var(--font-display); font-size: 21px; color: var(--gold);
+    margin-bottom: 4px; display:flex; align-items:center; gap:9px;
+  }
+  .cat-group-sub{ color: var(--muted-2); font-size:12.5px; margin-bottom:14px; font-weight:600; }
+
+  .product-grid{ display:flex; flex-direction:column; gap:12px; }
+  .product-card{
+    background: var(--surface); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; display:flex; gap:13px; position:relative;
+  }
+  .product-tile{
+    width:64px; height:64px; border-radius: 14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(155deg, var(--tile-a,#4A2E17), var(--tile-b,#2C1A0C));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .product-tile svg{ width:30px; height:30px; color: var(--gold); opacity:0.92; }
+  .product-tile img{ width:100%; height:100%; object-fit:cover; border-radius:14px; }
+
+  .product-body{ flex:1; min-width:0; }
+  .product-top{ display:flex; justify-content:space-between; gap:8px; align-items:flex-start; }
+  .product-name{ font-size:15px; font-weight:800; line-height:1.25; }
+  .product-badge{
+    display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:0.4px;
+    background: rgba(255,193,69,0.15); color: var(--gold); border:1px solid rgba(255,193,69,0.35);
+    padding:2px 7px; border-radius:6px; margin-bottom:4px; text-transform:uppercase;
+  }
+  .product-desc{ font-size:12px; color: var(--muted-2); margin-top:3px; line-height:1.45; font-weight:500; }
+
+  .product-bottom{ display:flex; align-items:center; justify-content:space-between; margin-top:10px; gap:8px; }
+  .price-stamp{
+    font-family: var(--font-mono); font-weight:700; font-size:13.5px;
+    color: #1A0E04; background: var(--gold);
+    padding: 4px 9px; border-radius:7px; transform: rotate(-2deg);
+    white-space:nowrap;
+  }
+  .qty-add{ display:flex; align-items:center; gap:8px; }
+  .qty-btn{
+    width:30px; height:30px; border-radius:9px; background: var(--surface-3); color: var(--cream);
+    font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
+  .qty-val{ font-weight:800; font-size:14px; min-width:14px; text-align:center; }
+  .btn-add{
+    background: var(--caju); color:#1A0E04; font-weight:800; font-size:12.5px;
+    padding: 9px 14px; border-radius:9px; letter-spacing:0.3px;
+  }
+  .btn-add.in-cart{ background: var(--good); color:#0C2814; }
+
+  /* ============ destaques ============ */
+  .highlight-scroll{ display:flex; gap:12px; overflow-x:auto; padding: 4px 18px 10px; margin: 0 -18px; scrollbar-width:none; }
+  .highlight-scroll::-webkit-scrollbar{ display:none; }
+  .highlight-card{
+    flex-shrink:0; width:190px; background: var(--surface); border:1px solid var(--line);
+    border-radius: var(--radius); padding:14px; position:relative;
+  }
+  .highlight-tile{
+    width:100%; height:96px; border-radius:12px; margin-bottom:12px;
+    background: linear-gradient(155deg, var(--tile-a,#4A2E17), var(--tile-b,#2C1A0C));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .highlight-tile svg{ width:42px; height:42px; color: var(--gold); }
+  .highlight-ribbon{
+    position:absolute; top:10px; left:10px; background: var(--ember); color:#fff;
+    font-size:9.5px; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:0.3px; text-transform:uppercase;
+  }
+
+  /* ============ sobre ============ */
+  .about-card{
+    background: var(--surface); border:1px solid var(--line); border-radius: var(--radius); padding:22px;
+  }
+  .about-quote{ font-size:16px; font-weight:700; line-height:1.5; color: var(--cream); }
+  .about-quote::before{ content:'"'; color: var(--caju); }
+  .about-quote::after{ content:'"'; color: var(--caju); }
+  .stat-row{ display:flex; gap:10px; margin-top:18px; }
+  .stat{ flex:1; background: var(--surface-2); border-radius:12px; padding:12px; text-align:center; }
+  .stat-num{ font-family: var(--font-display); font-size:19px; color: var(--gold); }
+  .stat-label{ font-size:10px; color: var(--muted-2); font-weight:700; text-transform:uppercase; margin-top:2px; letter-spacing:0.3px; }
+
+  /* ============ avaliações ============ */
+  .review-badge{
+    display:flex; align-items:center; gap:14px; background: var(--surface); border:1px solid var(--line);
+    border-radius: var(--radius); padding:20px;
+  }
+  .review-badge .g{ font-family:var(--font-display); font-size:40px; color: var(--gold); line-height:1; }
+  .review-source{ font-size:12px; color: var(--muted); font-weight:600; margin-top:6px; }
+  .review-link{ margin-top:14px; display:inline-flex; align-items:center; gap:6px; color: var(--caju); font-weight:800; font-size:13.5px; }
+
+  /* ============ localização ============ */
+  .map-frame{
+    width:100%; height:220px; border-radius: var(--radius); overflow:hidden; border:1px solid var(--line);
+    filter: grayscale(0.15) contrast(1.05);
+  }
+  .map-frame iframe{ width:100%; height:100%; border:0; }
+  .info-list{ margin-top:16px; display:flex; flex-direction:column; gap:12px; }
+  .info-row{ display:flex; gap:12px; align-items:flex-start; }
+  .info-row svg{ width:19px; height:19px; color: var(--caju); flex-shrink:0; margin-top:2px; }
+  .info-row-title{ font-weight:800; font-size:14px; }
+  .info-row-sub{ font-size:12.5px; color: var(--muted); margin-top:2px; font-weight:500; }
+  .pay-icons{ display:flex; gap:8px; margin-top:8px; }
+  .pay-chip{ background: var(--surface-2); border:1px solid var(--line); padding:5px 10px; border-radius:7px; font-size:11px; font-weight:700; color: var(--muted); }
+
+  /* ============ CTA final ============ */
+  .cta-final{
+    position:relative; margin: 10px 18px 0; border-radius: 24px; overflow:hidden;
+    background: linear-gradient(155deg, var(--ember), #8E1414 130%);
+    padding: 40px 24px; text-align:center;
+  }
+  .cta-final::before{
+    content:''; position:absolute; inset:0; opacity:0.5;
+    background-image: repeating-linear-gradient(-35deg, rgba(0,0,0,0.18) 0 3px, transparent 3px 22px);
+  }
+  .cta-final > *{ position:relative; }
+  .cta-final h2{ font-size: 30px; color:#fff; }
+  .cta-final p{ color: rgba(255,255,255,0.85); margin-top:8px; font-weight:600; font-size:14.5px; }
+  .cta-final .btn{ margin-top:20px; }
+
+  /* ============ footer ============ */
+  footer{ padding: 40px 0 30px; border-top:1px solid var(--line); margin-top:20px; }
+  .footer-brand{ display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+  .footer-links{ display:flex; flex-direction:column; gap:11px; margin-bottom:20px; }
+  .footer-link{ display:flex; align-items:center; gap:9px; font-size:13.5px; font-weight:600; color: var(--muted); }
+  .footer-link svg{ width:17px; height:17px; color: var(--caju); flex-shrink:0; }
+  .footer-bottom{ font-size:11px; color: var(--muted-2); border-top:1px solid var(--line); padding-top:16px; }
+
+  /* ============ carrinho flutuante ============ */
+  .cart-bar{
+    position: fixed; left:0; right:0; bottom:0; z-index:70;
+    display:flex; justify-content:center;
+    padding: 0 14px 14px; pointer-events:none;
+    transform: translateY(120%); transition: transform .28s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .cart-bar.show{ transform: translateY(0); }
+  .cart-bar-inner{
+    pointer-events:all; width:100%; max-width: calc(var(--container) - 28px);
+    background: linear-gradient(90deg, var(--caju-deep), var(--caju));
+    border-radius:16px; padding: 14px 16px; display:flex; align-items:center; justify-content:space-between;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  }
+  .cart-bar-count{
+    width:26px; height:26px; border-radius:50%; background:#1A0E04; color: var(--gold);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12.5px; flex-shrink:0;
+  }
+  .cart-bar-mid{ display:flex; align-items:center; gap:10px; color:#1A0E04; font-weight:700; font-size:13.5px; }
+  .cart-bar-total{ font-family: var(--font-display); font-size:16px; color:#1A0E04; }
+
+  /* ============ drawer do carrinho ============ */
+  .overlay{
+    position:fixed; inset:0; background: rgba(10,7,4,0.7); z-index:80; opacity:0; pointer-events:none;
+    transition: opacity .25s ease; backdrop-filter: blur(2px);
+  }
+  .overlay.show{ opacity:1; pointer-events:all; }
+  .drawer{
+    position:fixed; left:0; right:0; bottom:0; z-index:90; max-width: var(--container); margin:0 auto;
+    background: var(--surface); border-radius: 22px 22px 0 0; border:1px solid var(--line); border-bottom:none;
+    max-height: 86vh; display:flex; flex-direction:column;
+    transform: translateY(100%); transition: transform .32s cubic-bezier(.2,.9,.25,1);
+  }
+  .drawer.show{ transform: translateY(0); }
+  .drawer-handle{ width:38px; height:4px; background: var(--line); border-radius:99px; margin:12px auto 4px; }
+  .drawer-head{ display:flex; justify-content:space-between; align-items:center; padding: 10px 18px 6px; }
+  .drawer-head h3{ font-size:19px; }
+  .drawer-close{ width:32px; height:32px; border-radius:50%; background: var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--muted); }
+  .drawer-body{ overflow-y:auto; padding: 10px 18px 8px; flex:1; }
+  .drawer-empty{ text-align:center; padding: 40px 10px; color: var(--muted-2); }
+  .drawer-item{ display:flex; align-items:center; gap:11px; padding: 11px 0; border-bottom:1px solid var(--line); }
+  .drawer-item-name{ font-weight:800; font-size:13.5px; }
+  .drawer-item-price{ font-size:12px; color: var(--muted-2); margin-top:2px; font-weight:600; }
+  .drawer-item-ctrl{ display:flex; align-items:center; gap:8px; margin-left:auto; }
+  .field-label{ font-size:12px; font-weight:800; color: var(--gold); text-transform:uppercase; letter-spacing:0.4px; margin: 16px 0 7px; display:block; }
+  .field-input, .field-textarea{
+    width:100%; background: var(--surface-2); border:1px solid var(--line); border-radius:11px;
+    padding:11px 13px; color: var(--cream); font-family:inherit; font-size:14px; font-weight:600;
+  }
+  .field-textarea{ resize:vertical; min-height:56px; }
+  .pay-options{ display:flex; gap:8px; margin-top:2px; }
+  .pay-opt{ flex:1; text-align:center; padding:10px 6px; border-radius:10px; background: var(--surface-2); border:1.5px solid var(--line); font-size:12.5px; font-weight:700; color:var(--muted); }
+  .pay-opt.active{ border-color: var(--caju); color: var(--caju); background: rgba(255,122,41,0.08); }
+  .drawer-summary{ padding:10px 0 4px; }
+  .summary-row{ display:flex; justify-content:space-between; font-size:13.5px; color: var(--muted); padding:4px 0; font-weight:600; }
+  .summary-row.total{ font-size:18px; color: var(--cream); font-weight:800; padding-top:8px; border-top:1px dashed var(--line); margin-top:6px; }
+  .drawer-footer{ padding: 12px 18px calc(18px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); }
+
+  .toast{
+    position:fixed; left:50%; bottom:100px; transform: translate(-50%, 20px); z-index:95;
+    background: var(--good); color:#0C2814; font-weight:800; font-size:13px;
+    padding:11px 18px; border-radius:99px; opacity:0; transition: all .25s ease; pointer-events:none;
+    white-space:nowrap;
+  }
+  .toast.show{ opacity:1; transform: translate(-50%, 0); }
+
+  /* ============ desktop ============ */
+  @media (min-width: 860px){
+    :root{ --container: 1080px; }
+    .hero-inner{ display:grid; grid-template-columns: 1.1fr 0.9fr; align-items:center; gap:40px; }
+    .hero-title{ font-size:64px; }
+    .hero-illustration{ margin:0; height:280px; }
+    .burger{ width: 260px; }
+    .product-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:14px; }
+    .highlight-scroll{ display:grid; grid-template-columns: repeat(4,1fr); }
+    .highlight-card{ width:auto; }
+    section .wrap > .section-head{ max-width:520px; }
+    .loc-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; }
+    .map-frame{ height: 320px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CONFIGURAÇÃO — edite aqui para reutilizar em outro negócio
+     ============================================================ -->
+<script>
+const BUSINESS = {
+  name: "Caju Lanches",
+  fullName: "Caju Lanches Guarabu",
+  tagline: "Hambúrguer artesanal, no capricho, direto pra sua casa.",
+  whatsapp: "5521990140196", // com DDI+DDD, só números
+  phone: "(21) 3851-8204",
+  instagram: "https://www.instagram.com/cajulanchesguarabu/",
+  instagramHandle: "@cajulanchesguarabu",
+  address: "Rua Crundiúba — Guarabu, Ilha do Governador, Rio de Janeiro - RJ",
+  mapsQuery: "Caju Lanches Guarabu, Rua Crundiúba, Ilha do Governador, Rio de Janeiro",
+  deliveryArea: "Entregamos em toda a Ilha do Governador",
+  hours: { openHour: 18, openMin: 0, closeHour: 0, closeMin: 30 }, // 18:00 às 00:30
+  hoursLabel: "Todos os dias, 18h às 00h30",
+  rating: 4.5,
+  reviewCount: 731,
+  payments: ["Dinheiro", "Mastercard", "Visa"]
+};
+
+// category id -> { label, icon (svg name), tileColors }
+const CATEGORIES = [
+  { id:"combos",       label:"Combos",              icon:"combo",   a:"#5A3512", b:"#2C1A0C" },
+  { id:"tradicionais", label:"Hambúrgueres",         icon:"burger",  a:"#4A2E17", b:"#2C1A0C" },
+  { id:"nobres",       label:"Sanduíches Nobres",    icon:"burger",  a:"#5C2A16", b:"#2E140A" },
+  { id:"especiais",    label:"Sanduíches Especiais", icon:"special", a:"#4A2A3B", b:"#241019" },
+  { id:"hotdog",       label:"Cachorro Quente",      icon:"hotdog",  a:"#5A2A1C", b:"#2C130C" },
+  { id:"batatas",      label:"Batatas Fritas",       icon:"fries",   a:"#5C4212", b:"#2E2008" },
+  { id:"acai",         label:"Açaí",                 icon:"acai",    a:"#4A2568", b:"#241033" },
+  { id:"sucos",        label:"Sucos",                icon:"juice",   a:"#2E5C1C", b:"#152E0C" },
+  { id:"bebidas",      label:"Bebidas",              icon:"drink",   a:"#1E4A5C", b:"#0D242E" },
+];
+
+// PRODUCTS — id único, categoria, nome, descrição, preço (número), img opcional
+const PRODUCTS = [
+  // ---------- COMBOS ----------
+  { id:"c1", cat:"combos", name:"Kit Casal", desc:"2 X-Tudo + Batata frita + 2 Guaravitas", price:28.00 },
+  { id:"c2", cat:"combos", name:"Trio Cachorro Quente", desc:"Cachorro quente + Batata frita + Guaravita", price:15.00 },
+  { id:"c3", cat:"combos", name:"Trio X-Tudo", desc:"X-Tudo + Batata frita + Guaravita", price:22.00 },
+  { id:"c4", cat:"combos", name:"Trio X-Tudo com Açaí", desc:"X-Tudo + Batata frita + Açaí", price:26.00 },
+  { id:"c5", cat:"combos", name:"Kit Família Pequena", desc:"3 X-Tudo + 3 Guaravitas", price:36.00 },
+  { id:"c6", cat:"combos", name:"Kit Família", desc:"4 X-Tudo + 4 Guaravitas", price:50.00 },
+  { id:"c7", cat:"combos", name:"Kit Hambúrguer", desc:"2 Hambúrgueres + 2 Guaravitas", price:21.00 },
+  { id:"c8", cat:"combos", name:"3 Açaí 300ml", desc:"3 copos de açaí de 300ml", price:25.00 },
+  { id:"c9", cat:"combos", name:"Trio X-Bacon", desc:"X-Bacon + Batata frita + Guaravita", price:17.00 },
+  { id:"c10", cat:"combos", name:"Kit Casal Coca-Cola", desc:"2 sanduíches + Batata frita + Refrigerante", price:33.00, badge:"Popular" },
+  { id:"c11", cat:"combos", name:"Trio X-Egg Burguer", desc:"X-Egg Burguer + Batata frita + Guaravita", price:17.00 },
+  { id:"c12", cat:"combos", name:"Trio X-Burguer", desc:"X-Burguer + Batata frita + Guaravita", price:15.00 },
+  { id:"c13", cat:"combos", name:"Trio X-Calabresa", desc:"X-Calabresa + Batata frita + Guaravita", price:17.00 },
+
+  // ---------- SANDUÍCHES TRADICIONAIS (todos com 02 carnes) ----------
+  { id:"t1", cat:"tradicionais", name:"Hambúrguer", desc:"Pão, 02 carnes e self-service", price:9.50 },
+  { id:"t2", cat:"tradicionais", name:"X-Burguer", desc:"Pão, 02 carnes, queijo e self-service", price:11.50 },
+  { id:"t3", cat:"tradicionais", name:"X-Presunto", desc:"Pão, 02 carnes, queijo, presunto e self-service", price:12.00 },
+  { id:"t4", cat:"tradicionais", name:"X-Bacon", desc:"Pão, 02 carnes, queijo, bacon e self-service", price:12.00 },
+  { id:"t5", cat:"tradicionais", name:"X-Calabresa", desc:"Pão, 02 carnes, queijo, calabresa e self-service", price:12.00 },
+  { id:"t6", cat:"tradicionais", name:"X-Egg Burguer", desc:"Pão, 02 carnes, queijo, ovo e self-service", price:12.00 },
+  { id:"t7", cat:"tradicionais", name:"X-Egg Presunto", desc:"Pão, 02 carnes, queijo, ovo, presunto e self-service", price:12.50 },
+  { id:"t8", cat:"tradicionais", name:"X-Egg Bacon", desc:"Pão, 02 carnes, queijo, ovo, bacon e self-service", price:12.50 },
+  { id:"t9", cat:"tradicionais", name:"X-Egg Calabresa", desc:"Pão, 02 carnes, queijo, ovo, calabresa e self-service", price:12.50 },
+  { id:"t10", cat:"tradicionais", name:"X-Tudo", desc:"Pão, 02 carnes, queijo, ovo, bacon, presunto e self-service", price:13.00, badge:"Favorito" },
+  { id:"t11", cat:"tradicionais", name:"X-Duplo de Carne", desc:"Pão, 02 carnes, 02 queijos e self-service", price:12.00 },
+
+  // ---------- SANDUÍCHES NOBRES (picanha ou filé de frango) ----------
+  { id:"n1", cat:"nobres", name:"Hambúrguer Nobre", desc:"Picanha ou filé de frango — pão, carne e self-service", price:12.00 },
+  { id:"n2", cat:"nobres", name:"Egg Burguer Nobre", desc:"Picanha ou filé de frango, ovo e self-service", price:12.50 },
+  { id:"n3", cat:"nobres", name:"X-Burguer Nobre", desc:"Picanha ou filé de frango, queijo e self-service", price:12.50 },
+  { id:"n4", cat:"nobres", name:"X-Presunto Nobre", desc:"Picanha ou filé de frango, queijo, presunto e self-service", price:13.00 },
+  { id:"n5", cat:"nobres", name:"X-Bacon Nobre", desc:"Picanha ou filé de frango, queijo, bacon e self-service", price:13.00 },
+  { id:"n6", cat:"nobres", name:"X-Calabresa Nobre", desc:"Picanha ou filé de frango, queijo, calabresa e self-service", price:13.00 },
+  { id:"n7", cat:"nobres", name:"X-Egg Burguer Nobre", desc:"Picanha ou filé de frango, queijo, ovo e self-service", price:13.00 },
+  { id:"n8", cat:"nobres", name:"X-Egg Presunto Nobre", desc:"Picanha ou filé de frango, queijo, ovo, presunto e self-service", price:14.00 },
+  { id:"n9", cat:"nobres", name:"X-Egg Bacon Nobre", desc:"Picanha ou filé de frango, queijo, ovo, bacon e self-service", price:14.00 },
+  { id:"n10", cat:"nobres", name:"X-Egg Calabresa Nobre", desc:"Picanha ou filé de frango, queijo, ovo, calabresa e self-service", price:14.00 },
+  { id:"n11", cat:"nobres", name:"X-Tudo Nobre", desc:"Picanha ou filé de frango, queijo, ovo, bacon, presunto e self-service", price:18.00, badge:"Favorito" },
+  { id:"n12", cat:"nobres", name:"X-Duplo de Picanha", desc:"Pão, dobro de picanha, queijo e self-service", price:17.00 },
+
+  // ---------- SANDUÍCHES ESPECIAIS ----------
+  { id:"e1", cat:"especiais", name:"Misto Quente", desc:"Pão de forma, queijo e presunto", price:9.50 },
+  { id:"e2", cat:"especiais", name:"Sanduíche Natural", desc:"Pão sírio ou integral, peito de peru, queijo minas, alface e tomate", price:10.00 },
+  { id:"e3", cat:"especiais", name:"Peito de Frango à Mineira", desc:"Pão sírio, filé de frango, queijo minas, alho frito, tomate e orégano", price:17.00 },
+  { id:"e4", cat:"especiais", name:"Picanha à Mineira", desc:"Pão sírio, picanha, queijo minas, alho frito, tomate e orégano", price:17.00 },
+  { id:"e5", cat:"especiais", name:"Duplo Cheddar", desc:"Sanduíche especial da casa com cheddar cremoso", price:19.00 },
+  { id:"e6", cat:"especiais", name:"X-Tudo Duplo", desc:"Dose dupla de carne e acompanhamentos do X-Tudo", price:19.00 },
+  { id:"e7", cat:"especiais", name:"X-Tudo Caju", desc:"O sanduíche mais completo da casa", price:24.00, badge:"Especialidade" },
+
+  // ---------- CACHORRO QUENTE ----------
+  { id:"h1", cat:"hotdog", name:"Simples de Salsicha", desc:"Pão, salsicha e self-service", price:8.00 },
+  { id:"h2", cat:"hotdog", name:"Simples de Linguiça", desc:"Pão, linguiça e self-service", price:8.00 },
+  { id:"h3", cat:"hotdog", name:"Caju Especial de Salsicha", desc:"Pão, salsicha, queijo, presunto, bacon, catupiry ou cheddar e self-service", price:13.00 },
+  { id:"h4", cat:"hotdog", name:"Caju Especial de Linguiça", desc:"Pão, linguiça, queijo, presunto, catupiry ou cheddar e self-service", price:13.00 },
+
+  // ---------- BATATAS FRITAS ----------
+  { id:"b1", cat:"batatas", name:"Batata Frita Pequena", desc:"Porção simples", price:8.00 },
+  { id:"b2", cat:"batatas", name:"Batata Frita Média", desc:"Porção simples", price:11.00 },
+  { id:"b3", cat:"batatas", name:"Batata Frita Grande", desc:"Porção simples", price:19.00 },
+  { id:"b4", cat:"batatas", name:"Batata Frita Especial", desc:"Queijo e calabresa", price:26.00 },
+  { id:"b5", cat:"batatas", name:"Batata Frita Super", desc:"Queijo e bacon", price:26.00 },
+  { id:"b6", cat:"batatas", name:"Batata Frita Vip", desc:"Queijo, bacon e calabresa", price:31.00 },
+  { id:"b7", cat:"batatas", name:"Batata Frita Top", desc:"Queijo, bacon, calabresa e cheddar", price:36.00, badge:"Favorito" },
+
+  // ---------- AÇAÍ ----------
+  { id:"a1", cat:"acai", name:"Açaí 200ml", desc:"Escolha até 2 acompanhamentos e 2 coberturas", price:7.00 },
+  { id:"a2", cat:"acai", name:"Açaí 300ml", desc:"Escolha até 2 acompanhamentos e 2 coberturas", price:9.50 },
+  { id:"a3", cat:"acai", name:"Açaí 400ml", desc:"Escolha até 3 acompanhamentos e 3 coberturas", price:11.00 },
+  { id:"a4", cat:"acai", name:"Açaí 500ml", desc:"Escolha até 3 acompanhamentos e 3 coberturas", price:12.00 },
+  { id:"a5", cat:"acai", name:"Açaí 700ml", desc:"Escolha até 4 acompanhamentos e 4 coberturas", price:16.00 },
+  { id:"a6", cat:"acai", name:"Açaí 1 Litro", desc:"Escolha até 5 acompanhamentos e 5 coberturas", price:22.00, badge:"Rende mais" },
+
+  // ---------- SUCOS ----------
+  { id:"j1", cat:"sucos", name:"Suco 300ml", desc:"Acerola, abacaxi, abacaxi c/ hortelã, caju, goiaba, manga, maracujá ou morango", price:7.50 },
+  { id:"j2", cat:"sucos", name:"Suco 500ml", desc:"Acerola, abacaxi, abacaxi c/ hortelã, caju, goiaba, manga, maracujá ou morango", price:8.50 },
+  { id:"j3", cat:"sucos", name:"Suco 700ml", desc:"Acerola, abacaxi, abacaxi c/ hortelã, caju, goiaba, manga, maracujá ou morango", price:11.00 },
+
+  // ---------- BEBIDAS ----------
+  { id:"d1", cat:"bebidas", name:"Água sem Gás", desc:"", price:3.00 },
+  { id:"d2", cat:"bebidas", name:"Água com Gás", desc:"", price:3.50 },
+  { id:"d3", cat:"bebidas", name:"Guaravita", desc:"", price:2.50 },
+  { id:"d4", cat:"bebidas", name:"Guaraviton", desc:"", price:5.50 },
+  { id:"d5", cat:"bebidas", name:"Refrigerante Lata 350ml", desc:"", price:5.50 },
+];
+
+// Itens em destaque na seção "Favoritos da casa" (por id do PRODUCTS)
+const HIGHLIGHT_IDS = ["c6", "t10", "b7", "e7"];
+</script>
+
+<!-- ============================================================
+     ESTRUTURA DA PÁGINA
+     ============================================================ -->
+
+<header class="topbar" id="topbar">
+  <div class="topbar-inner wrap-wide" style="max-width:1080px;">
+    <div class="brand">
+      <div class="brand-badge">C</div>
+      <div class="brand-name" id="brandNameTop">Caju Lanches
+        <small id="brandSubTop">Guarabu</small>
+      </div>
+    </div>
+    <a class="btn-wa-mini" id="topWaBtn" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.45 1.33 4.95L2 22l5.24-1.37a9.9 9.9 0 0 0 4.8 1.22h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2Z" opacity=".18"/><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5-.17 0-.37-.02-.57-.02s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.09 3.2 5.08 4.48.71.31 1.26.49 1.69.63.71.22 1.35.19 1.86.12.57-.09 1.76-.72 2-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg>
+      Pedir
+    </a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap-wide hero-inner" style="max-width:1080px;">
+    <div class="wrap" style="padding:0; max-width:none;">
+      <div class="hero-eyebrow"><span class="dot-live" id="heroDot"></span><span id="heroStatus">Verificando horário…</span></div>
+      <h1 class="hero-title">CAJU<br><span class="accent">LANCHES</span></h1>
+      <p class="hero-sub" id="heroTagline">Hambúrguer artesanal, no capricho, direto pra sua casa.</p>
+
+      <div class="hero-cta-row">
+        <a class="btn btn-primary btn-block" id="heroWaBtn" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.47-.89-.79-1.48-1.77-1.66-2.07-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5-.17 0-.37-.02-.57-.02s-.52.07-.8.37c-.27.3-1.04 1.02-1.04 2.47 0 1.46 1.06 2.87 1.21 3.07.15.2 2.09 3.2 5.08 4.48.71.31 1.26.49 1.69.63.71.22 1.35.19 1.86.12.57-.09 1.76-.72 2-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35ZM12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.45 1.33 4.95L2 22l5.24-1.37a9.9 9.9 0 0 0 4.8 1.22h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2Zm5.83 15.79a8.3 8.3 0 0 1-4.86 1.31c-1.55 0-3.06-.42-4.37-1.2l-.31-.19-3.11.81.83-3.03-.2-.32a8.28 8.28 0 0 1-1.27-4.41c0-4.58 3.73-8.3 8.31-8.3a8.24 8.24 0 0 1 8.3 8.3 8.28 8.28 0 0 1-3.32 6.03Z"/></svg>
+          PEDIR AGORA NO WHATSAPP
+        </a>
+        <a class="btn btn-ghost btn-block" href="#cardapio">Ver cardápio completo</a>
+      </div>
+
+      <div class="rating-strip">
+        <div class="stars">★★★★★</div>
+        <div style="flex:1;">
+          <span class="rating-num" id="ratingNum">4,5</span>
+          <small id="reviewCountLabel">731 avaliações no Google</small>
+        </div>
+      </div>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <span id="heroAddress">Guarabu, Ilha do Governador</span>
+        </div>
+        <div class="hero-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span id="heroHours">18h às 00h30, todos os dias</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-illustration">
+      <div class="burger">
+        <div class="steam" style="left:20%; animation-delay:0s;"></div>
+        <div class="steam" style="left:50%; animation-delay:1.1s;"></div>
+        <div class="steam" style="left:78%; animation-delay:2.1s;"></div>
+        <div class="layer bun-top"></div>
+        <div class="layer lettuce"></div>
+        <div class="layer cheese"></div>
+        <div class="layer patty"></div>
+        <div class="layer bacon"></div>
+        <div class="layer cheese"></div>
+        <div class="layer patty"></div>
+        <div class="layer bun-bottom"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAVORITOS -->
+<section id="favoritos">
+  <div class="wrap-wide" style="max-width:1080px;">
+    <div class="wrap section-head" style="padding:0; max-width:none;">
+      <span class="eyebrow">Favoritos da casa</span>
+      <h2 class="section-title">O que mais sai daqui</h2>
+    </div>
+  </div>
+  <div class="highlight-scroll wrap-wide" style="max-width:1080px; padding-left:18px; padding-right:18px;" id="highlightScroll"></div>
+</section>
+
+<!-- CARDÁPIO -->
+<section id="cardapio" style="padding-top:8px;">
+  <div class="wrap-wide" style="max-width:1080px;">
+    <div class="wrap section-head" style="padding:0; max-width:none;">
+      <span class="eyebrow">Cardápio</span>
+      <h2 class="section-title">Monte seu pedido</h2>
+      <p class="section-desc">Escolha os itens, ajuste a quantidade e finalize direto pelo WhatsApp.</p>
+    </div>
+  </div>
+
+  <nav class="cat-nav">
+    <div class="cat-scroll" id="catScroll"></div>
+  </nav>
+
+  <div class="wrap-wide" style="max-width:1080px;" id="menuContainer"></div>
+</section>
+
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="wrap">
+    <span class="eyebrow">Sobre</span>
+    <h2 class="section-title" style="margin-bottom:16px;">A lanchonete</h2>
+    <div class="about-card">
+      <p class="about-quote">Hambúrguer artesanal preparado na hora, com ingredientes selecionados e muito sabor.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num">70+</div><div class="stat-label">Itens no cardápio</div></div>
+        <div class="stat"><div class="stat-num">4,5★</div><div class="stat-label">Nota no Google</div></div>
+        <div class="stat"><div class="stat-num">6h30</div><div class="stat-label">Por dia, sem folga</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AVALIAÇÕES -->
+<section id="avaliacoes">
+  <div class="wrap">
+    <span class="eyebrow">Avaliações</span>
+    <h2 class="section-title" style="margin-bottom:16px;">O que dizem no Google</h2>
+    <div class="review-badge">
+      <div class="g">4,5</div>
+      <div>
+        <div class="stars">★★★★★</div>
+        <div class="review-source">731 avaliações no Google · comida e entrega bem avaliadas</div>
+      </div>
+    </div>
+    <a class="review-link" id="reviewLink" href="#" target="_blank" rel="noopener">
+      Ver avaliações no Google Maps
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17 17 7M9 7h8v8"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- LOCALIZAÇÃO -->
+<section id="local">
+  <div class="wrap-wide loc-grid" style="max-width:1080px;">
+    <div class="wrap" style="padding:0; max-width:none;">
+      <span class="eyebrow">Localização</span>
+      <h2 class="section-title" style="margin-bottom:16px;">Onde estamos</h2>
+      <div class="info-list">
+        <div class="info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <div><div class="info-row-title" id="locAddress">Rua Crundiúba — Guarabu, Ilha do Governador, RJ</div><div class="info-row-sub" id="locDelivery">Entregamos em toda a Ilha do Governador</div></div>
+        </div>
+        <div class="info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <div><div class="info-row-title">Horário de funcionamento</div><div class="info-row-sub" id="locHours">Todos os dias, 18h às 00h30</div></div>
+        </div>
+        <div class="info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <div>
+            <div class="info-row-title">Formas de pagamento</div>
+            <div class="pay-icons" id="payIcons"></div>
+          </div>
+        </div>
+      </div>
+      <a class="btn btn-primary" style="margin-top:20px;" id="comoChegarBtn" href="#" target="_blank" rel="noopener">COMO CHEGAR</a>
+    </div>
+    <div class="map-frame" style="margin-top:22px;">
+      <iframe id="mapFrame" src="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section style="padding-top:10px;">
+  <div class="cta-final">
+    <h2>Bateu a fome?</h2>
+    <p>Faça seu pedido agora e receba quentinho aí na sua casa.</p>
+    <a class="btn btn-primary" id="ctaFinalBtn" href="#" target="_blank" rel="noopener">PEDIR PELO WHATSAPP</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="footer-brand">
+      <div class="brand-badge">C</div>
+      <div class="brand-name" id="footerBrand">Caju Lanches Guarabu</div>
+    </div>
+    <div class="footer-links">
+      <a class="footer-link" id="footerWa" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+        <span id="footerWaLabel">WhatsApp — (21) 99014-0196</span>
+      </a>
+      <a class="footer-link" id="footerIg" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+        <span id="footerIgLabel">@cajulanchesguarabu</span>
+      </a>
+      <div class="footer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span id="footerAddress">Rua Crundiúba, Guarabu — Ilha do Governador, RJ</span>
+      </div>
+      <div class="footer-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span id="footerHours">Todos os dias, 18h às 00h30</span>
+      </div>
+    </div>
+    <div class="footer-bottom">© <span id="footerYear"></span> Caju Lanches Guarabu. Cardápio e preços sujeitos a alteração.</div>
+  </div>
+</footer>
+
+<!-- BARRA DE CARRINHO FLUTUANTE -->
+<div class="cart-bar" id="cartBar">
+  <button class="cart-bar-inner" id="cartBarBtn">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div class="cart-bar-count" id="cartCount">0</div>
+      <div class="cart-bar-mid">Ver carrinho</div>
+    </div>
+    <div class="cart-bar-total" id="cartTotal">R$ 0,00</div>
+  </button>
+</div>
+
+<!-- OVERLAY + DRAWER DO CARRINHO -->
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-head">
+    <h3>Seu pedido</h3>
+    <button class="drawer-close" id="drawerClose">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div id="drawerItems"></div>
+
+    <label class="field-label" for="fieldAddress">Endereço de entrega</label>
+    <textarea class="field-textarea" id="fieldAddress" placeholder="Rua, número, bairro e ponto de referência"></textarea>
+
+    <label class="field-label">Forma de pagamento</label>
+    <div class="pay-options" id="payOptions"></div>
+
+    <label class="field-label" for="fieldNotes">Observações</label>
+    <textarea class="field-textarea" id="fieldNotes" placeholder="Sem cebola, ponto da carne, troco para..."></textarea>
+
+    <div class="drawer-summary">
+      <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">R$ 0,00</span></div>
+      <div class="summary-row total"><span>Total</span><span id="sumTotal">R$ 0,00</span></div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-primary btn-block" id="finishBtn">FINALIZAR PEDIDO NO WHATSAPP</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Adicionado ao pedido</div>
+
+<!-- ============================================================
+     LÓGICA DO SITE
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+
+  // ---------- ícones por categoria ----------
+  const ICONS = {
+    combo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10a8 8 0 0 1 16 0" /><path d="M3 10h18l-1.2 3H4.2L3 10Z"/><path d="M6 13l1 7h10l1-7"/></svg>',
+    burger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11c0-3.5 3.6-6 8-6s8 2.5 8 6"/><path d="M3 11h18"/><path d="M3.5 14.5h17"/><path d="M4 18h16l-1 2H5l-1-2Z"/></svg>',
+    special: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12c0-3 3.5-5 8-5s8 2 8 5"/><path d="M3 12h18"/><path d="M5 15h14l-1.5 5h-11L5 15Z"/><path d="M9 5V3M15 5V3"/></svg>',
+    hotdog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="9" width="20" height="6" rx="3" transform="rotate(-8 12 12)"/><path d="M4 9c1-2 3-3 3-3M20 15c-1 2-3 3-3 3" /></svg>',
+    fries: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 10V4M10 10V3M14 10V3M18 10V4"/><path d="M4 10h16l-1.5 10h-13L4 10Z"/></svg>',
+    acai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 10a7 7 0 0 1 14 0"/><path d="M4 10h16l-1.5 8a3 3 0 0 1-3 2.5h-7a3 3 0 0 1-3-2.5L4 10Z"/><path d="M12 5V3"/></svg>',
+    juice: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h10l-1 16a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2L7 4Z"/><path d="M6.5 9h11"/></svg>',
+    drink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3h8l-1 4.5L17 20a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2l2-12.5L8 3Z"/><path d="M7.3 8h9.4"/></svg>'
+  };
+
+  const catById = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+  const productById = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
+  const money = n => "R$ " + n.toFixed(2).replace(".", ",");
+  const waLink = (msg) => "https://wa.me/" + BUSINESS.whatsapp + (msg ? ("?text=" + encodeURIComponent(msg)) : "");
+
+  // ---------- preencher dados do negócio ----------
+  document.getElementById("brandSubTop").textContent = BUSINESS.fullName.replace(BUSINESS.name, "").trim() || BUSINESS.name;
+  document.getElementById("heroTagline").textContent = BUSINESS.tagline;
+  document.getElementById("heroAddress").textContent = BUSINESS.address.split(",").slice(0,2).join(",");
+  document.getElementById("heroHours").textContent = BUSINESS.hoursLabel;
+  document.getElementById("ratingNum").textContent = String(BUSINESS.rating).replace(".", ",");
+  document.getElementById("reviewCountLabel").textContent = BUSINESS.reviewCount + " avaliações no Google";
+  document.getElementById("locAddress").textContent = BUSINESS.address;
+  document.getElementById("locDelivery").textContent = BUSINESS.deliveryArea;
+  document.getElementById("locHours").textContent = BUSINESS.hoursLabel;
+  document.getElementById("footerBrand").textContent = BUSINESS.fullName;
+  document.getElementById("footerAddress").textContent = BUSINESS.address;
+  document.getElementById("footerHours").textContent = BUSINESS.hoursLabel;
+  document.getElementById("footerYear").textContent = new Date().getFullYear();
+  document.getElementById("footerWaLabel").textContent = "WhatsApp — " + BUSINESS.phone.replace("3851-8204","99014-0196");
+  document.getElementById("footerIgLabel").textContent = BUSINESS.instagramHandle;
+  document.getElementById("footerIg").href = BUSINESS.instagram;
+  document.getElementById("payIcons").innerHTML = BUSINESS.payments.map(p => `<span class="pay-chip">${p}</span>`).join("");
+
+  const mapsUrl = "https://www.google.com/maps?q=" + encodeURIComponent(BUSINESS.mapsQuery) + "&output=embed";
+  document.getElementById("mapFrame").src = mapsUrl;
+  const mapsDirUrl = "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(BUSINESS.mapsQuery);
+  document.getElementById("comoChegarBtn").href = mapsDirUrl;
+  document.getElementById("reviewLink").href = "https://www.google.com/maps/search/" + encodeURIComponent(BUSINESS.mapsQuery);
+
+  [ "topWaBtn","heroWaBtn","ctaFinalBtn","footerWa" ].forEach(id => {
+    document.getElementById(id).href = waLink("Oi! Vim pelo site e quero fazer um pedido 🍔");
+  });
+
+  // ---------- status aberto/fechado ----------
+  function updateOpenStatus(){
+    const now = new Date();
+    const h = now.getHours(), m = now.getMinutes();
+    const mins = h * 60 + m;
+    const openMins = BUSINESS.hours.openHour * 60 + BUSINESS.hours.openMin;
+    const closeMins = BUSINESS.hours.closeHour * 60 + BUSINESS.hours.closeMin; // 0:30 -> 30
+    // aberto se hora atual >= abertura OU hora atual < fechamento (cruza meia-noite)
+    const isOpen = mins >= openMins || mins < closeMins;
+    const dot = document.getElementById("heroDot");
+    const label = document.getElementById("heroStatus");
+    if(isOpen){ dot.classList.remove("off"); label.textContent = "Aberto agora · fecha às 00h30"; }
+    else{ dot.classList.add("off"); label.textContent = "Fechado agora · abre às 18h"; }
+  }
+  updateOpenStatus();
+  setInterval(updateOpenStatus, 60000);
+
+  // ---------- montar nav de categorias ----------
+  const catScroll = document.getElementById("catScroll");
+  CATEGORIES.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "cat-pill";
+    btn.dataset.cat = c.id;
+    btn.innerHTML = `<span style="width:14px;height:14px;display:inline-flex;">${ICONS[c.icon]}</span>${c.label}`;
+    btn.addEventListener("click", () => {
+      document.getElementById("cat-" + c.id).scrollIntoView({ behavior:"smooth", block:"start", inline:"nearest" });
+    });
+    catScroll.appendChild(btn);
+  });
+
+  // ---------- montar cardápio ----------
+  const menuContainer = document.getElementById("menuContainer");
+  CATEGORIES.forEach(c => {
+    const items = PRODUCTS.filter(p => p.cat === c.id);
+    if(!items.length) return;
+    const group = document.createElement("div");
+    group.className = "cat-group wrap";
+    group.style.maxWidth = "none";
+    group.id = "cat-" + c.id;
+    group.innerHTML = `
+      <div class="cat-group-title"><span style="width:22px;height:22px;display:inline-flex;color:var(--gold)">${ICONS[c.icon]}</span>${c.label}</div>
+      <div class="product-grid"></div>
+    `;
+    const grid = group.querySelector(".product-grid");
+    items.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <div class="product-tile" style="--tile-a:${c.a}; --tile-b:${c.b};">
+          ${p.img ? `<img src="${p.img}" alt="${p.name}">` : ICONS[c.icon]}
+        </div>
+        <div class="product-body">
+          <div class="product-top">
+            <div>
+              ${p.badge ? `<span class="product-badge">${p.badge}</span><br>` : ""}
+              <div class="product-name">${p.name}</div>
+              ${p.desc ? `<div class="product-desc">${p.desc}</div>` : ""}
+            </div>
+          </div>
+          <div class="product-bottom">
+            <span class="price-stamp">${money(p.price)}</span>
+            <div class="qty-add" data-id="${p.id}">
+              <button class="qty-btn qty-minus">–</button>
+              <span class="qty-val">0</span>
+              <button class="btn-add">ADICIONAR</button>
+            </div>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+      wireQtyControls(card.querySelector(".qty-add"), p.id);
+    });
+    menuContainer.appendChild(group);
+  });
+
+  // ---------- destaques ----------
+  const highlightScroll = document.getElementById("highlightScroll");
+  HIGHLIGHT_IDS.forEach(id => {
+    const p = productById[id];
+    if(!p) return;
+    const c = catById[p.cat];
+    const card = document.createElement("div");
+    card.className = "highlight-card";
+    card.innerHTML = `
+      <span class="highlight-ribbon">Favorito</span>
+      <div class="highlight-tile" style="--tile-a:${c.a}; --tile-b:${c.b};">${ICONS[c.icon]}</div>
+      <div class="product-name" style="margin-bottom:4px;">${p.name}</div>
+      <div class="product-desc" style="margin-bottom:10px; min-height:32px;">${p.desc}</div>
+      <div class="product-bottom">
+        <span class="price-stamp">${money(p.price)}</span>
+        <div class="qty-add" data-id="${p.id}">
+          <button class="qty-btn qty-minus">–</button>
+          <span class="qty-val">0</span>
+          <button class="btn-add">ADD</button>
+        </div>
+      </div>
+    `;
+    highlightScroll.appendChild(card);
+    wireQtyControls(card.querySelector(".qty-add"), p.id);
+  });
+
+  // ---------- carrinho ----------
+  let cart = {}; // id -> qty
+  let paymentMethod = BUSINESS.payments[0];
+
+  function wireQtyControls(el, id){
+    const minus = el.querySelector(".qty-minus");
+    const add = el.querySelector(".btn-add");
+    minus.addEventListener("click", () => changeQty(id, -1));
+    add.addEventListener("click", () => changeQty(id, +1));
+  }
+
+  function changeQty(id, delta){
+    const current = cart[id] || 0;
+    const next = Math.max(0, current + delta);
+    if(next === 0) delete cart[id]; else cart[id] = next;
+    syncQtyUI(id);
+    updateCartBar();
+    if(delta > 0) showToast(productById[id].name + " adicionado");
+  }
+
+  function syncQtyUI(id){
+    document.querySelectorAll(`.qty-add[data-id="${id}"]`).forEach(el => {
+      const qty = cart[id] || 0;
+      el.querySelector(".qty-val").textContent = qty;
+      el.querySelector(".btn-add").classList.toggle("in-cart", qty > 0);
+      el.querySelector(".btn-add").textContent = qty > 0 ? "NO PEDIDO" : (el.closest(".highlight-card") ? "ADD" : "ADICIONAR");
+    });
+  }
+
+  function cartEntries(){
+    return Object.entries(cart).map(([id, qty]) => ({ p: productById[id], qty })).filter(e => e.p);
+  }
+  function cartTotal(){
+    return cartEntries().reduce((sum, e) => sum + e.p.price * e.qty, 0);
+  }
+  function cartCount(){
+    return cartEntries().reduce((sum, e) => sum + e.qty, 0);
+  }
+
+  const cartBar = document.getElementById("cartBar");
+  function updateCartBar(){
+    const count = cartCount();
+    document.getElementById("cartCount").textContent = count;
+    document.getElementById("cartTotal").textContent = money(cartTotal());
+    cartBar.classList.toggle("show", count > 0);
+    renderDrawer();
+  }
+
+  // ---------- drawer ----------
+  const overlay = document.getElementById("overlay");
+  const drawer = document.getElementById("drawer");
+  function openDrawer(){ overlay.classList.add("show"); drawer.classList.add("show"); }
+  function closeDrawer(){ overlay.classList.remove("show"); drawer.classList.remove("show"); }
+  document.getElementById("cartBarBtn").addEventListener("click", openDrawer);
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+
+  function renderDrawer(){
+    const wrap = document.getElementById("drawerItems");
+    const entries = cartEntries();
+    if(!entries.length){
+      wrap.innerHTML = `<div class="drawer-empty">Seu carrinho está vazio.<br>Adicione itens do cardápio para continuar.</div>`;
+    } else {
+      wrap.innerHTML = entries.map(e => `
+        <div class="drawer-item">
+          <div>
+            <div class="drawer-item-name">${e.p.name}</div>
+            <div class="drawer-item-price">${money(e.p.price)} un.</div>
+          </div>
+          <div class="drawer-item-ctrl" data-id="${e.p.id}">
+            <button class="qty-btn d-minus">–</button>
+            <span class="qty-val">${e.qty}</span>
+            <button class="qty-btn d-plus">+</button>
+          </div>
+        </div>
+      `).join("");
+      wrap.querySelectorAll(".drawer-item-ctrl").forEach(el => {
+        const id = el.dataset.id;
+        el.querySelector(".d-minus").addEventListener("click", () => changeQty(id, -1));
+        el.querySelector(".d-plus").addEventListener("click", () => changeQty(id, +1));
+      });
+    }
+    document.getElementById("sumSubtotal").textContent = money(cartTotal());
+    document.getElementById("sumTotal").textContent = money(cartTotal());
+  }
+
+  // ---------- forma de pagamento ----------
+  const payOptions = document.getElementById("payOptions");
+  BUSINESS.payments.forEach((p, i) => {
+    const btn = document.createElement("button");
+    btn.className = "pay-opt" + (i === 0 ? " active" : "");
+    btn.textContent = p;
+    btn.addEventListener("click", () => {
+      paymentMethod = p;
+      payOptions.querySelectorAll(".pay-opt").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+    payOptions.appendChild(btn);
+  });
+
+  // ---------- finalizar pedido ----------
+  document.getElementById("finishBtn").addEventListener("click", () => {
+    const entries = cartEntries();
+    if(!entries.length){ showToast("Adicione itens ao pedido primeiro"); return; }
+    const address = document.getElementById("fieldAddress").value.trim();
+    const notes = document.getElementById("fieldNotes").value.trim();
+
+    let msg = `🛵 *Pedido — ${BUSINESS.fullName}*\n\n`;
+    entries.forEach(e => {
+      msg += `${e.qty}x ${e.p.name} — ${money(e.p.price * e.qty)}\n`;
+    });
+    msg += `\n*Total: ${money(cartTotal())}*\n`;
+    msg += `💳 Pagamento: ${paymentMethod}\n`;
+    if(address) msg += `📍 Entregar em: ${address}\n`;
+    if(notes) msg += `📝 Obs: ${notes}\n`;
+    msg += `\nAguardo confirmação, obrigado(a)!`;
+
+    window.open(waLink(msg), "_blank");
+  });
+
+  // ---------- toast ----------
+  let toastTimer;
+  function showToast(text){
+    const t = document.getElementById("toast");
+    t.textContent = text;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 1600);
+  }
+
+  // ---------- topbar auto-hide ----------
+  let lastScroll = 0;
+  const topbar = document.getElementById("topbar");
+  window.addEventListener("scroll", () => {
+    const y = window.scrollY;
+    if(y > lastScroll && y > 120) topbar.classList.add("hide");
+    else topbar.classList.remove("hide");
+    lastScroll = y;
+
+    // destaca categoria ativa
+    let current = CATEGORIES[0].id;
+    CATEGORIES.forEach(c => {
+      const el = document.getElementById("cat-" + c.id);
+      if(el && el.getBoundingClientRect().top < 140) current = c.id;
+    });
+    document.querySelectorAll(".cat-pill").forEach(p => p.classList.toggle("active", p.dataset.cat === current));
+  }, { passive:true });
+
+  updateCartBar();
+})();
+</script>
+</body>
+</html>
